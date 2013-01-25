@@ -2,41 +2,54 @@
 /* Defines a two dimensional point */
 struct Point
 {
-	float x, y;
+	float x, y, z;
+
 
 	bool operator<(const Point& other) const
 	{
-		return x < other.x || y < other.y;
+		return x < other.x || y < other.y || z < other.z;
 	}
+
+
 
 	Point operator+(const Point& other) const
 	{
 		Point result;
 		result.x = x + other.x;
 		result.y = y + other.y;
+		result.z = z + other.z;
 		return result;
 	}
 
-	Point operator*(const int factor) const
+
+
+	Point operator*(const float factor) const
 	{
 		Point result;
 		result.x = x * factor;
 		result.y = y * factor;
+		result.z = z * factor;
 		return result;
 	}
 
-	Point operator/(int other) const
+
+
+	Point operator/(float other) const
 	{
 		Point result;
 		result.x = x / other;
 		result.y = y / other;
+		result.z = z / other;
 		return result;
 	}
+
+
 
 	Point& operator+=(const Point& other)
 	{
 		x += other.x;
 		y += other.y;
+		z += other.z;
 		return *this;
 	}
 };
