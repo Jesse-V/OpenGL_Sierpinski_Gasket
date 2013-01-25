@@ -5,5 +5,4 @@ all: Main; ./Main; make clean
 Main: Shader.o Program.o
 clean:
 	rm -f *.o Main
-	rm *~
 .PHONY: all clean
