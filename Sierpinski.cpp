@@ -2,13 +2,16 @@
 #include <vector>
 #include <map>
 #include <random> //for Mersenne Twister RNG
-#include <cmath>
-#include <math.h> //for calculating distance between two Points
+#include <cmath> //for calculating distance between two Points
+#include <math.h> //for some reason cmath's abs function rounds floats, idk why
 #include <algorithm> //for iteration
 
 #include "Triangle.struct"
 
-const float SCALE = 0.1f;
+const float RANDOMNESS_SCALE = 0.1f;
+const float RESOLUTION = 5; //8 is a good max
+
+const float DIMENSIONS = 2;
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
 std::uniform_real_distribution<float> randomFloat(0, 1);
@@ -33,7 +36,8 @@ float length(const Point& a, const Point& b)
 
 
 
-/* Returns the midpoint between the two points. Uses memoizing.. */
+/*	Returns the midpoint between the two points with a randomized offset.
+	Uses memoizing to avoid tearing across repeated lookups. */
 Point getMidpoint(const Point& a, const Point& b)
 {
 	static std::map<std::pair<Point, Point>, Point> memo;
@@ -43,7 +47,7 @@ Point getMidpoint(const Point& a, const Point& b)
 		return foundResult->second; //if found in cache, return pre-computed midpoint
 	
 	auto result = (a + b) / 2; //create midpoint
-	result += randVector() * length(a, b) * SCALE; //create random offset
+	result += randVector() * length(a, b) * RANDOMNESS_SCALE; //add random offset
 
 	memo.insert(std::make_pair(std::make_pair(a, b), result)); //memoize
 	memo.insert(std::make_pair(std::make_pair(b, a), result));
@@ -75,7 +79,7 @@ std::vector<Triangle> subdivideTriangle(const Triangle& triangle)
 		{ triangle.A, cPrime, bPrime }, //top triangle
 		{ cPrime, triangle.B, aPrime }, //bottom left triangle
 		{ bPrime, aPrime, triangle.C }, //bottom right triangle
-		{ cPrime, aPrime, bPrime }      //center triangle, comment this out to 
+		{ cPrime, aPrime, bPrime }      //center triangle
 	};
 }
 
@@ -84,13 +88,13 @@ std::vector<Triangle> subdivideTriangle(const Triangle& triangle)
 /* Creates the gasket */
 void createGasket(std::vector<Triangle>& gasketTriangles, const Triangle& baseTriangle, int depth, const int& maxDepth)
 {
-	if (depth >= maxDepth)
+	if (depth >= maxDepth) //base case
 	{
 		gasketTriangles.push_back(baseTriangle);
 		return;
 	}
 		
-
+	//subdivide and recurse
 	auto subTriangles = subdivideTriangle(baseTriangle);
 	for_each (subTriangles.begin(), subTriangles.end(), 
 		[&](const Triangle& subTri)
@@ -135,9 +139,7 @@ void appendLine(std::vector<GLfloat>& vertices, const Point& a, const Point& b)
 /* Returns the vertices that describe the on-screen shapes */
 std::pair<int, std::vector<GLfloat>> getVertices()
 {
-	int coordinateSize = 2;
-
-	auto gasket = getGasket(5); //8 is a good max
+	auto gasket = getGasket(RESOLUTION);
 	std::cout << "Triangle count: " << gasket.size() << std::endl;
 
 	std::vector<GLfloat> vertices;
@@ -155,5 +157,5 @@ std::pair<int, std::vector<GLfloat>> getVertices()
 	
 	std::cout << "Coord count: " << vertices.size() << std::endl;
 
-	return std::make_pair(coordinateSize, vertices);
+	return std::make_pair(DIMENSIONS, vertices);
 }
