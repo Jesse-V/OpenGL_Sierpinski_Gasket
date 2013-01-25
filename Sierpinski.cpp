@@ -8,10 +8,10 @@
 
 #include "Triangle.struct"
 
-const float RANDOMNESS_SCALE = 0.1f;
-const float RESOLUTION = 5; //8 is a good max
-
 const float DIMENSIONS = 2;
+const Triangle BASE_TRIANGLE = {{0.1, 0.9}, {-0.9, -0.9}, {0.9, -0.9}};
+const float RANDOMNESS_SCALE = 0.1f;
+const float RESOLUTION = 6; //8 is a good max
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
 std::uniform_real_distribution<float> randomFloat(0, 1);
@@ -85,12 +85,12 @@ std::vector<Triangle> subdivideTriangle(const Triangle& triangle)
 
 
 
-/* Creates the gasket */
-void createGasket(std::vector<Triangle>& gasketTriangles, const Triangle& baseTriangle, int depth, const int& maxDepth)
+/* Creates the mountain */
+void createMountain(std::vector<Triangle>& modelTriangles, const Triangle& baseTriangle, int depth, const int& maxDepth)
 {
 	if (depth >= maxDepth) //base case
 	{
-		gasketTriangles.push_back(baseTriangle);
+		modelTriangles.push_back(baseTriangle);
 		return;
 	}
 		
@@ -99,25 +99,24 @@ void createGasket(std::vector<Triangle>& gasketTriangles, const Triangle& baseTr
 	for_each (subTriangles.begin(), subTriangles.end(), 
 		[&](const Triangle& subTri)
 		{
-			createGasket(gasketTriangles, subTri, depth + 1, maxDepth);
+			createMountain(modelTriangles, subTri, depth + 1, maxDepth);
 		});
 }
 
 
 
-/* Creates the Sierpinksi Gasket. Uses memoizing to create the gasket only once. */
-std::vector<Triangle> getGasket(const int& maxDepth)
+/* Creates the mountain model using the Sierpinksi Gasket. Uses memoizing to create the model only once. */
+std::vector<Triangle> getModel(const int& maxDepth)
 {
-	static std::vector<Triangle> gasketTriangles;
+	static std::vector<Triangle> modelTriangles;
 
-	if (gasketTriangles.empty())
+	if (modelTriangles.empty())
 	{
-		Triangle baseTriangle = {{0.1, 0.9}, {-0.9, -0.9}, {0.9, -0.9}};
-		createGasket(gasketTriangles, baseTriangle, 0, maxDepth);
-		return gasketTriangles;
+		createMountain(modelTriangles, BASE_TRIANGLE, 0, maxDepth);
+		return modelTriangles;
 	}
 	else
-		return gasketTriangles;
+		return modelTriangles;
 }
 
 
@@ -139,7 +138,7 @@ void appendLine(std::vector<GLfloat>& vertices, const Point& a, const Point& b)
 /* Returns the vertices that describe the on-screen shapes */
 std::pair<int, std::vector<GLfloat>> getVertices()
 {
-	auto gasket = getGasket(RESOLUTION);
+	auto gasket = getModel(RESOLUTION);
 	std::cout << "Triangle count: " << gasket.size() << std::endl;
 
 	std::vector<GLfloat> vertices;
