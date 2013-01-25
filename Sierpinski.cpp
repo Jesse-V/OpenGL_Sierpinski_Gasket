@@ -106,7 +106,7 @@ std::vector<Triangle> getGasket(const int& maxDepth)
 
 	if (gasketTriangles.empty())
 	{
-		Triangle baseTriangle = {{0, 1}, {-1, -1}, {1, -1}};
+		Triangle baseTriangle = {{0.1, 0.9}, {-0.9, -0.9}, {0.9, -0.9}};
 		createGasket(gasketTriangles, baseTriangle, 0, maxDepth);
 		return gasketTriangles;
 	}
@@ -121,7 +121,7 @@ std::pair<int, std::vector<GLfloat>> getVertices()
 {
 	int coordinateSize = 2;
 
-	auto gasketTriangles = getGasket(3);
+	auto gasketTriangles = getGasket(4); //8 is a good max
 	std::cout << "Triangle count: " << gasketTriangles.size() << std::endl;
 
 	std::vector<GLfloat> vertices;
@@ -132,8 +132,16 @@ std::pair<int, std::vector<GLfloat>> getVertices()
 			vertices.push_back(gasketTriangle.A.y);
 			vertices.push_back(gasketTriangle.B.x);
 			vertices.push_back(gasketTriangle.B.y);
+
+			vertices.push_back(gasketTriangle.B.x);
+			vertices.push_back(gasketTriangle.B.y);
 			vertices.push_back(gasketTriangle.C.x);
 			vertices.push_back(gasketTriangle.C.y);
+
+			vertices.push_back(gasketTriangle.C.x);
+			vertices.push_back(gasketTriangle.C.y);
+			vertices.push_back(gasketTriangle.A.x);
+			vertices.push_back(gasketTriangle.A.y);
 
 			//std::cout << "A: " << gasketTriangle.A.x << ", " << gasketTriangle.A.y << std::endl;
 			//std::cout << "B: " <<gasketTriangle.B.x << ", " << gasketTriangle.B.y << std::endl;

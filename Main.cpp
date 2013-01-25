@@ -28,7 +28,7 @@ void setupVertexData()
 	);
  
 	/* Push all the vertices to the vertex shader */
-	glDrawArrays(GL_TRIANGLES, 0, verticesData.second.size() / verticesData.first);
+	glDrawArrays(GL_LINES, 0, verticesData.second.size() / verticesData.first);
 	glDisableVertexAttribArray(attribute);
 }
 
