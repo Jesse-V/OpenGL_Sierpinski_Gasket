@@ -1,17 +1,17 @@
 
 #include <vector>
-#include <map>
+#include <map> //memoizing in getMidpoint
 #include <random> //for Mersenne Twister RNG
 #include <cmath> //for calculating distance between two Points
-#include <math.h> //for some reason cmath's abs function rounds floats, idk why
-#include <algorithm> //for iteration
+#include <math.h> //for fabs as a workaround for problems with cmath's abs
+#include <algorithm> //for iterating
 
 #include "Triangle.struct"
 
 const int DIMENSIONS = 3;
-const Triangle BASE_TRIANGLE = {{0.1, 0.9, 0}, {-0.9, -0.9, 0}, {0.9, -0.9, 0}};
-const float RANDOMNESS_SCALE = 0.075f;
-const int RESOLUTION = 6; //8 is a good max
+const std::vector<Point> BASE = {{-0.9, 0.9, 0}, {-0.9, -0.9, 0}, {0.9, -0.9, 0}, {0.9, 0.9, 0}};
+const float RANDOMNESS_SCALE = 0.0f; //0.075f;
+const int RESOLUTION = 5; //8 is a good max
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
 std::uniform_real_distribution<float> randomFloat(-1, 1);
@@ -30,7 +30,7 @@ Point randVector()
 
 /* Returns the distance between the two given Points */
 float length(const Point& a, const Point& b)
-{
+{ //for some reason cmath's abs function rounds floats, idk why
 	return sqrt(pow(fabs(a.x - b.x), 2) + pow(fabs(a.y - b.y), 2) + pow(fabs(a.z - b.z), 2));
 }
 
@@ -40,6 +40,7 @@ float length(const Point& a, const Point& b)
 	Uses memoizing to avoid tearing across repeated lookups. */
 Point getMidpoint(const Point& a, const Point& b)
 {
+	//std::cout << "query: " << a.x << ", " << a.y << "	" << b.x << ", " << b.y << std::endl;
 	static std::map<std::pair<Point, Point>, Point> memo;
 	auto AB = std::make_pair(a, b), BA = std::make_pair(b, a);
 
@@ -48,10 +49,10 @@ Point getMidpoint(const Point& a, const Point& b)
 		return foundResult->second; //if found in cache, return pre-computed midpoint
 	
 	auto result = (a + b) / 2; //create midpoint
-	result += randVector() * length(a, b) * RANDOMNESS_SCALE; //add random offset
+	//result += randVector() * length(a, b) * RANDOMNESS_SCALE; //add random offset
 
-	memo.insert(std::make_pair(AB, result)); //memoize
-	memo.insert(std::make_pair(BA, result));
+	//memo.insert(std::make_pair(AB, result)); //memoize
+	//memo.insert(std::make_pair(BA, result));
 
 	return result;
 }
@@ -86,8 +87,8 @@ std::vector<Triangle> subdivideTriangle(const Triangle& triangle)
 
 
 
-/* Creates the mountain */
-void createMountain(std::vector<Triangle>& modelTriangles, const Triangle& baseTriangle, int depthLeft)
+/* Creates a face of the mountain by divide and conquer */
+void createFace(std::vector<Triangle>& modelTriangles, const Triangle& baseTriangle, int depthLeft)
 {
 	if (depthLeft <= 0) //base case
 	{
@@ -100,20 +101,41 @@ void createMountain(std::vector<Triangle>& modelTriangles, const Triangle& baseT
 	for_each (subTriangles.begin(), subTriangles.end(), 
 		[&](const Triangle& subTri)
 		{
-			createMountain(modelTriangles, subTri, depthLeft - 1);
+			createFace(modelTriangles, subTri, depthLeft - 1);
 		});
 }
 
 
 
+/* Creates all four faces of the 3D mountain and returns the result */
+void createMountain(std::vector<Triangle>& modelTriangles)
+{
+	const Triangle BASE_TRIANGLE = {{0, 0, 0}, {-0.9, -0.9, 0}, {0.9, -0.9, 0}};
+
+	auto oppositeCorners = std::make_pair(BASE[0], BASE[2]);
+	std::cout << oppositeCorners.first.x << ", " << oppositeCorners.first.y << "	" << oppositeCorners.second.x << ", " << oppositeCorners.second.y << std::endl;
+
+	//auto topPeak = getMidpoint(oppositeCorners.first, oppositeCorners.second);
+	std::cout << "Generating..." << std::endl;
+	//createFace(modelTriangles, BASE_TRIANGLE, RESOLUTION);
+
+	Point topPeak = {0, 0, 1};
+	createFace(modelTriangles, {topPeak, BASE[0], BASE[1]}, RESOLUTION);
+	createFace(modelTriangles, {topPeak, BASE[1], BASE[2]}, RESOLUTION);
+	createFace(modelTriangles, {topPeak, BASE[2], BASE[3]}, RESOLUTION);
+	createFace(modelTriangles, {topPeak, BASE[3], BASE[0]}, RESOLUTION);
+}
+
+
+
 /* Creates the mountain model using the Sierpinksi Gasket. Uses memoizing to create the model only once. */
-std::vector<Triangle> getModel(const int& maxDepth)
+std::vector<Triangle> getModel()
 {
 	static std::vector<Triangle> modelTriangles;
 
 	if (modelTriangles.empty())
 	{
-		createMountain(modelTriangles, BASE_TRIANGLE, maxDepth);
+		createMountain(modelTriangles);
 		return modelTriangles;
 	}
 	else
@@ -139,7 +161,7 @@ void appendLine(std::vector<GLfloat>& vertices, const Point& a, const Point& b)
 /* Returns the vertices that describe the on-screen shapes */
 std::pair<int, std::vector<GLfloat>> getVertices()
 {
-	auto gasket = getModel(RESOLUTION);
+	auto gasket = getModel();
 	std::cout << "Triangle count: " << gasket.size() << std::endl;
 
 	std::vector<GLfloat> vertices;
