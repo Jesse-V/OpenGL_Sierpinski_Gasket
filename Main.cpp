@@ -1,7 +1,7 @@
 #include <chrono>
 #include <thread>
 
-#include "Angel.h"
+#include "vector.h"
 
 typedef Angel::vec4 color4;
 typedef Angel::vec4 point4;
@@ -11,47 +11,55 @@ const int NumVertices = 36;
 point4 points[NumVertices];
 color4 colors[NumVertices];
 
-point4	vertex_positions[8]	=	{	
-				point4(	-0.5,	-0.5,	 0.5,	1.0	),	
-				point4(	-0.5,	 0.5,	 0.5,	1.0	),	
-				point4(	 0.5,	 0.5,	 0.5,	1.0	),	
-				point4(	 0.5,	-0.5,	 0.5,	1.0	),	
-				point4(	-0.5,	-0.5,	-0.5,	1.0	),	
-				point4(	-0.5,	 0.5,	-0.5,	1.0	),	
-				point4(	 0.5,	 0.5,	-0.5,	1.0	),	
-				point4(	 0.5,	-0.5,	-0.5,	1.0	)	
+point4 vertex_positions[8] = {	
+	point4(	-0.5,	-0.5,	 0.5,	1.0),	
+	point4(	-0.5,	 0.5,	 0.5,	1.0),	
+	point4(	 0.5,	 0.5,	 0.5,	1.0),	
+	point4(	 0.5,	-0.5,	 0.5,	1.0),	
+	point4(	-0.5,	-0.5,	-0.5,	1.0),	
+	point4(	-0.5,	 0.5,	-0.5,	1.0),	
+	point4(	 0.5,	 0.5,	-0.5,	1.0),	
+	point4(	 0.5,	-0.5,	-0.5,	1.0)	
 };
 
-color4	vertex_colors[8]	=	{	
-				color4(0.0,	0.0,	0.0,	1.0),	//	black	
-				color4(1.0,	0.0,	0.0,	1.0),	//	red	
-				color4(1.0,	1.0,	0.0,	1.0),	//	yellow	
-				color4(0.0,	1.0,	0.0,	1.0),	//	green	
-				color4(0.0,	0.0,	1.0,	1.0),	//	blue	
-				color4(1.0,	0.0,	1.0,	1.0),	//	magenta	
-				color4(1.0,	1.0,	1.0,	1.0),	//	white	
-				color4(0.0,	1.0,	1.0,	1.0)	//	cyan	
+color4 vertex_colors[8] = {	
+	color4(0.0,		0.0,	0.0,	1.0),	//black	
+	color4(1.0,		0.0,	0.0,	1.0),	//red	
+	color4(1.0,		1.0,	0.0,	1.0),	//yellow	
+	color4(0.0,		1.0,	0.0,	1.0),	//green	
+	color4(0.0,		0.0,	1.0,	1.0),	//blue	
+	color4(1.0,		0.0,	1.0,	1.0),	//magenta	
+	color4(1.0,		1.0,	1.0,	1.0),	//white	
+	color4(0.0,		1.0,	1.0,	1.0)	//cyan	
 };
 
-enum {Xaxis = 0, Yaxis = 1, Zaxis = 2, NumAxes = 3};
+enum
+{
+	Xaxis = 0, Yaxis = 1, Zaxis = 2, NumAxes = 3
+};
+
+
 int Axis = Xaxis;
 GLfloat Theta[NumAxes] = {0.0, 0.0, 0.0};
 
 GLuint theta;
 
+
 int Index = 0;  // global variable indexing into VBO arrays 
 void quad(int a, int b, int c, int d)
-{ 
-    colors[Index] = vertex_colors[a]; points[Index] = vertex_positions[a]; Index++; 
-    colors[Index] = vertex_colors[b]; points[Index] = vertex_positions[b]; Index++; 
-    colors[Index] = vertex_colors[c]; points[Index] = vertex_positions[c]; Index++; 
-    colors[Index] = vertex_colors[a]; points[Index] = vertex_positions[a]; Index++; 
-    colors[Index] = vertex_colors[c]; points[Index] = vertex_positions[c]; Index++; 
-    colors[Index] = vertex_colors[d]; points[Index] = vertex_positions[d]; Index++; 
+{
+	colors[Index] = vertex_colors[a]; points[Index] = vertex_positions[a]; Index++; 
+	colors[Index] = vertex_colors[b]; points[Index] = vertex_positions[b]; Index++; 
+	colors[Index] = vertex_colors[c]; points[Index] = vertex_positions[c]; Index++; 
+	colors[Index] = vertex_colors[a]; points[Index] = vertex_positions[a]; Index++; 
+	colors[Index] = vertex_colors[c]; points[Index] = vertex_positions[c]; Index++; 
+	colors[Index] = vertex_colors[d]; points[Index] = vertex_positions[d]; Index++; 
 }
 
+
+
 void colorcube()
-{	
+{
 	quad(1,	0,	3,	2);	
 	quad(2,	3,	7,	6);	
 	quad(3,	0,	4,	7);	
@@ -60,7 +68,9 @@ void colorcube()
 	quad(5,	4,	0,	1);	
 }
 
-void init(void)
+
+
+void init()
 {
 	colorcube();
 
@@ -93,70 +103,98 @@ void init(void)
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 
-void display()
+
+
+
+void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	glUniform3fv(theta, 1, Theta);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
+	
 	glutSwapBuffers();
 }
 
-void keyboard(unsigned char key, int x, int y)
-{
-	switch (key)
-	{
-		case 033: //escape key
-		case 'q': case 'Q':
-			exit(EXIT_SUCCESS);
-			break;
-	}
-}
 
-void mouse(int button, int state, int x, int y)
+
+void mouseInput(int button, int state, int x, int y)
 {
 	if (state == GLUT_DOWN)
 	{
 		switch (button)
 		{
-			case GLUT_LEFT_BUTTON:		Axis = Xaxis;	break;
-			case GLUT_MIDDLE_BUTTON:	Axis = Yaxis;	break;
-			case GLUT_RIGHT_BUTTON:		Axis = Zaxis;	break;
+			case GLUT_LEFT_BUTTON:
+				Axis = Xaxis;
+				break;
+
+			case GLUT_MIDDLE_BUTTON:
+				Axis = Yaxis;
+				break;
+
+			case GLUT_RIGHT_BUTTON:
+				Axis = Zaxis;
+				break;
 		}
 	}
 }
 
-void idle(void)
+
+void rotate()
 {
-	Theta[Axis] += 0.8;
+	Theta[Axis] += 1;
 
 	if (Theta[Axis] > 360.0)
 		Theta[Axis] -= 360.0;
+}
 
-	std::chrono::milliseconds duration(50); //20 fps
+
+void sleep(int milliseconds)
+{
+	std::chrono::milliseconds duration(milliseconds);
 	std::this_thread::sleep_for(duration); //forget time.h or windows.h, this is the real way to sleep!
+}
 
+
+void onIdle()
+{
+	rotate();
+	sleep(50); //20 fps
 	glutPostRedisplay();
 }
+
+
+
+/* Initializes glut. Sets the window size and title to the specified values */
+void initializeGlutWindow(int width, int height, const std::string& windowTitle)
+{
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitWindowSize(width, height);
+	glutCreateWindow(windowTitle.c_str());
+}
+
+
 
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(512, 512);
-	glutCreateWindow("Color Cube");
+
+	int windowHeight = glutGet(GLUT_SCREEN_HEIGHT) - 20;
+	initializeGlutWindow(windowHeight, windowHeight, "OpenGL Application by Jesse Victors");
 
 	glewInit();
 	init();
 
-	glutDisplayFunc(display);
-	glutKeyboardFunc(keyboard);
-	glutMouseFunc(mouse);
-	glutIdleFunc(idle);
+	glutDisplayFunc(render);
+	glutMouseFunc(mouseInput);
+	glutIdleFunc(onIdle);
 
 	glutMainLoop();
 	return 0;
 }
+
+
 
 /*
 #include <GL/glut.h>
@@ -264,13 +302,7 @@ bool initializeWrangler()
 
 
 
-/* Initializes glut. Sets the window size and title to the specified values 
-void initializeGlutWindow(int width, int height, const std::string& windowTitle)
-{
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(width, height);
-	glutCreateWindow(windowTitle.c_str());
-}
+
 
 
 
