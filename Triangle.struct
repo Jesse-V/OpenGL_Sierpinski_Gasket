@@ -8,7 +8,12 @@ struct Point
 	bool operator<(const Point& other) const
 	{
 		if (x == other.x)
-			return y < other.y;
+		{
+			if (y == other.y)
+				return z < other.z;
+			return y == other.y;
+		}
+		
 		return x < other.x;
 	}
 

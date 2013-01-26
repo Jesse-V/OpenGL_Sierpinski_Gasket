@@ -8,19 +8,19 @@
 
 #include "Triangle.struct"
 
-const int DIMENSIONS = 2;
-const Triangle BASE_TRIANGLE = {{0.1, 0.9}, {-0.9, -0.9}, {0.9, -0.9}};
-const float RANDOMNESS_SCALE = 0.1f;
+const int DIMENSIONS = 3;
+const Triangle BASE_TRIANGLE = {{0.1, 0.9, 0}, {-0.9, -0.9, 0}, {0.9, -0.9, 0}};
+const float RANDOMNESS_SCALE = 0.075f;
 const int RESOLUTION = 6; //8 is a good max
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
-std::uniform_real_distribution<float> randomFloat(0, 1);
+std::uniform_real_distribution<float> randomFloat(-1, 1);
 
-int temp = 1;
-/* Produces a vector with the coordinates randomized and in the range of (0, 1) */
+
+/* Produces a vector with the coordinates randomized and in the range of (-1, 1) */
 Point randVector()
 {
-	return { //return random coordinates, each in the range of (0, 1)
+	return { //return random coordinates, each in the range of (-1, 1)
 		randomFloat(mersenneTwister),
 		randomFloat(mersenneTwister)
 	};
@@ -31,7 +31,7 @@ Point randVector()
 /* Returns the distance between the two given Points */
 float length(const Point& a, const Point& b)
 {
-	return sqrt(pow(fabs(a.x - b.x), 2) + pow(fabs(a.y - b.y), 2)); //sqrt of a^2 + b^2
+	return sqrt(pow(fabs(a.x - b.x), 2) + pow(fabs(a.y - b.y), 2) + pow(fabs(a.z - b.z), 2));
 }
 
 
@@ -127,11 +127,11 @@ void appendLine(std::vector<GLfloat>& vertices, const Point& a, const Point& b)
 {
 	vertices.push_back(a.x);
 	vertices.push_back(a.y);
-	//vertices.push_back(a.z);
+	vertices.push_back(a.z);
 
 	vertices.push_back(b.x);
 	vertices.push_back(b.y);
-	//vertices.push_back(b.z);
+	vertices.push_back(b.z);
 }
 
 
@@ -149,10 +149,6 @@ std::pair<int, std::vector<GLfloat>> getVertices()
 			appendLine(vertices, triangle.A, triangle.B); //express each triangle as three lines
 			appendLine(vertices, triangle.B, triangle.C);
 			appendLine(vertices, triangle.C, triangle.A);
-
-			//std::cout << "A: " << gasketTriangle.A.x << ", " << gasketTriangle.A.y << std::endl;
-			//std::cout << "B: " <<gasketTriangle.B.x << ", " << gasketTriangle.B.y << std::endl;
-			//std::cout << "C: " <<gasketTriangle.C.x << ", " << gasketTriangle.C.y << std::endl << std::endl;
 		});
 	
 	std::cout << "Coord count: " << vertices.size() << std::endl;
