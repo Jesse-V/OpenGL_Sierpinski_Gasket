@@ -44,6 +44,11 @@ void resetDisplay()
 }
 
 
+void onIdle()
+{
+
+}
+
 
 /* Called when the object needs to be redrawn, such as during a resize */
 void onDisplay()
@@ -59,7 +64,7 @@ void onDisplay()
 bool initializeResources()
 {
 	try
-	{  
+	{
 		program = cs5400::make_program
 		(
 			cs5400::make_vertexShader("vertex.glsl"),
@@ -67,6 +72,7 @@ bool initializeResources()
 		);
 
 		glutDisplayFunc(onDisplay);
+		//glutIdleFunc(onIdle);
 		return true;
 	}
 	catch(std::exception& e)

@@ -7,7 +7,9 @@ struct Point
 
 	bool operator<(const Point& other) const
 	{
-		return x < other.x || y < other.y || z < other.z;
+		if (x == other.x)
+			return y < other.y;
+		return x < other.x;
 	}
 
 
@@ -34,12 +36,12 @@ struct Point
 
 
 
-	Point operator/(float other) const
+	Point operator/(const float factor) const
 	{
 		Point result;
-		result.x = x / other;
-		result.y = y / other;
-		result.z = z / other;
+		result.x = x / factor;
+		result.y = y / factor;
+		result.z = z / factor;
 		return result;
 	}
 
@@ -60,4 +62,11 @@ struct Point
 struct Triangle
 {
 	Point A, B, C;
+};
+
+
+
+struct TriangularPrism
+{
+	Point A, B, C, D; //one for the top, others describe rectangular base
 };

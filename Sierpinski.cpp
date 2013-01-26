@@ -8,15 +8,15 @@
 
 #include "Triangle.struct"
 
-const float DIMENSIONS = 2;
+const int DIMENSIONS = 2;
 const Triangle BASE_TRIANGLE = {{0.1, 0.9}, {-0.9, -0.9}, {0.9, -0.9}};
 const float RANDOMNESS_SCALE = 0.1f;
-const float RESOLUTION = 6; //8 is a good max
+const int RESOLUTION = 6; //8 is a good max
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
 std::uniform_real_distribution<float> randomFloat(0, 1);
 
-
+int temp = 1;
 /* Produces a vector with the coordinates randomized and in the range of (0, 1) */
 Point randVector()
 {
@@ -41,16 +41,17 @@ float length(const Point& a, const Point& b)
 Point getMidpoint(const Point& a, const Point& b)
 {
 	static std::map<std::pair<Point, Point>, Point> memo;
+	auto AB = std::make_pair(a, b), BA = std::make_pair(b, a);
 
-	auto foundResult = memo.find(std::make_pair(a, b));
+	auto foundResult = memo.find(AB);
 	if (foundResult != memo.end())
 		return foundResult->second; //if found in cache, return pre-computed midpoint
 	
 	auto result = (a + b) / 2; //create midpoint
 	result += randVector() * length(a, b) * RANDOMNESS_SCALE; //add random offset
 
-	memo.insert(std::make_pair(std::make_pair(a, b), result)); //memoize
-	memo.insert(std::make_pair(std::make_pair(b, a), result));
+	memo.insert(std::make_pair(AB, result)); //memoize
+	memo.insert(std::make_pair(BA, result));
 
 	return result;
 }
@@ -86,9 +87,9 @@ std::vector<Triangle> subdivideTriangle(const Triangle& triangle)
 
 
 /* Creates the mountain */
-void createMountain(std::vector<Triangle>& modelTriangles, const Triangle& baseTriangle, int depth, const int& maxDepth)
+void createMountain(std::vector<Triangle>& modelTriangles, const Triangle& baseTriangle, int depthLeft)
 {
-	if (depth >= maxDepth) //base case
+	if (depthLeft <= 0) //base case
 	{
 		modelTriangles.push_back(baseTriangle);
 		return;
@@ -99,7 +100,7 @@ void createMountain(std::vector<Triangle>& modelTriangles, const Triangle& baseT
 	for_each (subTriangles.begin(), subTriangles.end(), 
 		[&](const Triangle& subTri)
 		{
-			createMountain(modelTriangles, subTri, depth + 1, maxDepth);
+			createMountain(modelTriangles, subTri, depthLeft - 1);
 		});
 }
 
@@ -112,7 +113,7 @@ std::vector<Triangle> getModel(const int& maxDepth)
 
 	if (modelTriangles.empty())
 	{
-		createMountain(modelTriangles, BASE_TRIANGLE, 0, maxDepth);
+		createMountain(modelTriangles, BASE_TRIANGLE, maxDepth);
 		return modelTriangles;
 	}
 	else
@@ -130,7 +131,7 @@ void appendLine(std::vector<GLfloat>& vertices, const Point& a, const Point& b)
 
 	vertices.push_back(b.x);
 	vertices.push_back(b.y);
-	//vertices.push_back(a.z);
+	//vertices.push_back(b.z);
 }
 
 
