@@ -140,6 +140,7 @@ void mouseInput(int button, int state, int x, int y)
 }
 
 
+
 void rotate()
 {
 	Theta[Axis] += 1;
@@ -149,11 +150,13 @@ void rotate()
 }
 
 
+
 void sleep(int milliseconds)
 {
 	std::chrono::milliseconds duration(milliseconds);
 	std::this_thread::sleep_for(duration); //forget time.h or windows.h, this is the real way to sleep!
 }
+
 
 
 void onIdle()
