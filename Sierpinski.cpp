@@ -11,9 +11,9 @@
 const std::vector<Point> BASE = {{-1, 1, 0}, {-1, -1, 0}, {1, -1, 0}, {1, 1, 0}};
 const float MOUNTAIN_HEIGHT = 1.0;
 const float SNOW_LEVEL = 0.6;
-const float RANDOMNESS_SCALE = 0.075f;
+const float RANDOMNESS_SCALE = 0.085f;//shouldn't be more than 0.2
 const int RESOLUTION = 7; //8 is a good max
-const int NUM_VERTICES = 262144; //= 4 ^ (RESOLUTION + 1)
+const int NUM_VERTICES = 262144; //= 4 ^ (RESOLUTION + 2)
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
 std::uniform_real_distribution<float> randomFloat(-1, 1);
@@ -24,7 +24,7 @@ Point randVector()
 {
 	return { //return random coordinates, each in the range of (-1, 1)
 		randomFloat(mersenneTwister),
-		0,//randomFloat(mersenneTwister),
+		randomFloat(mersenneTwister),
 		randomFloat(mersenneTwister)
 	};
 }
@@ -43,7 +43,6 @@ float length(const Point& a, const Point& b)
 	Uses memoizing to avoid tearing across repeated lookups. */
 Point getMidpoint(const Point& a, const Point& b)
 {
-	//std::cout << "query: " << a.x << ", " << a.y << "	" << b.x << ", " << b.y << std::endl;
 	static std::map<std::pair<Point, Point>, Point> memo;
 	auto AB = std::make_pair(a, b), BA = std::make_pair(b, a);
 

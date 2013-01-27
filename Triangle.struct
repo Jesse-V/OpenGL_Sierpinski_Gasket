@@ -7,25 +7,20 @@
 /* Defines a three-dimensional point */
 struct Point
 {
-	float x, y, z, w = 1;
+	float x, y, z, w;
 
 	Point(GLfloat s = GLfloat(0.0)):
-			x(s), y(s), z(s)
+			x(s), y(s), z(s), w(1)
 		{}
 
 	Point(GLfloat x, GLfloat y, GLfloat z):
-			x(x), y(y), z(z)
+			x(x), y(y), z(z), w(1)
 		{}
 
 	bool operator<(const Point& other) const
 	{
 		if (x == other.x)
-		{
-			if (y == other.y)
-				return z <= other.z;
 			return y < other.y;
-		}
-		
 		return x < other.x;
 	}
 
