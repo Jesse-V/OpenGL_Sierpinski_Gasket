@@ -1,9 +1,18 @@
 
+#include <GL/glew.h>
+
 /* Defines a two dimensional point */
 struct Point
 {
-	float x, y, z;
+	float x, y, z, w = 1;
 
+	Point(GLfloat s = GLfloat(0.0)):
+			x(s), y(s), z(s)
+		{}
+
+	Point(GLfloat x, GLfloat y, GLfloat z):
+			x(x), y(y), z(z)
+		{}
 
 	bool operator<(const Point& other) const
 	{

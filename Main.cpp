@@ -1,10 +1,9 @@
 #include <chrono>
 #include <thread>
+#include <cmath>
 
-#include "vector.h"
-
-typedef Angel::vec4 color4;
-typedef Angel::vec4 point4;
+#include "Shader.h"
+#include "Triangle.struct"
 
 const int SPEED = 1;
 const int NumVertices = 36;
@@ -12,67 +11,94 @@ GLfloat rotation[3] = {45.0, -45.0, 0.0};
 
 GLuint theta;
 
-point4 points[NumVertices];
-color4 colors[NumVertices];
+Point points[NumVertices];
+Point colors[NumVertices];
 
 
-const point4 vertex_positions[8] = 
+const Point vertex_positions[8] = 
 {	
-	point4(	-0.5,	-0.5,	 0.5),	
-	point4(	-0.5,	 0.5,	 0.5),	
-	point4(	 0.5,	 0.5,	 0.5),	
-	point4(	 0.5,	-0.5,	 0.5),	
-	point4(	-0.5,	-0.5,	-0.5),	
-	point4(	-0.5,	 0.5,	-0.5),	
-	point4(	 0.5,	 0.5,	-0.5),	
-	point4(	 0.5,	-0.5,	-0.5)	
+	Point(	-0.5,	-0.5,	 0.5),	
+	Point(	-0.5,	 0.5,	 0.5),	
+	Point(	 0.5,	 0.5,	 0.5),	
+	Point(	 0.5,	-0.5,	 0.5),	
+	Point(	-0.5,	-0.5,	-0.5),	
+	Point(	-0.5,	 0.5,	-0.5),	
+	Point(	 0.5,	 0.5,	-0.5),	
+	Point(	 0.5,	-0.5,	-0.5)	
 };
 
 
-const color4 vertex_colors[8] = 
+const Point vertex_colors[8] = 
 {	
-	color4(0.0,		0.0,	0.0),	//black	
-	color4(1.0,		0.0,	0.0),	//red	
-	color4(1.0,		1.0,	0.0),	//yellow	
-	color4(0.0,		1.0,	0.0),	//green	
-	color4(0.0,		0.0,	1.0),	//blue	
-	color4(1.0,		0.0,	1.0),	//magenta	
-	color4(1.0,		1.0,	1.0),	//white	
-	color4(0.0,		1.0,	1.0)	//cyan	
+	Point(0.0,		0.0,	0.0),	//black	
+	Point(1.0,		0.0,	0.0),	//red	
+	Point(1.0,		1.0,	0.0),	//yellow	
+	Point(0.0,		1.0,	0.0),	//green	
+	Point(0.0,		0.0,	1.0),	//blue	
+	Point(1.0,		0.0,	1.0),	//magenta	
+	Point(1.0,		1.0,	1.0),	//white	
+	Point(0.0,		1.0,	1.0)	//cyan	
 };
 
 
-//generates two triangles for each face and assigns colors to the vertices
-//int Index = 0;  // global variable indexing into VBO arrays 
-void quad(int a, int b, int c, int d, int& index)
+//generates two triangles for each face
+void createFace(int a, int b, int c, int d, int& index)
 {
-	colors[index] = vertex_colors[a]; points[index] = vertex_positions[a]; index++; 
-	colors[index] = vertex_colors[b]; points[index] = vertex_positions[b]; index++; 
-	colors[index] = vertex_colors[c]; points[index] = vertex_positions[c]; index++; 
+	points[index++] = vertex_positions[a]; 
+	points[index++] = vertex_positions[b];
+	points[index++] = vertex_positions[c]; 
 	
-	colors[index] = vertex_colors[a]; points[index] = vertex_positions[a]; index++; 
-	colors[index] = vertex_colors[c]; points[index] = vertex_positions[c]; index++; 
-	colors[index] = vertex_colors[d]; points[index] = vertex_positions[d]; index++; 
+	points[index++] = vertex_positions[a]; 
+	points[index++] = vertex_positions[c];
+	points[index++] = vertex_positions[d];
 }
 
 
-//generates 12 triangles: 36 vertices and 36 colors
-void colorcube()
+//generates 12 triangles: 36 vertices
+void generateCube()
 {
 	int index = 0;
-	quad(1,	0,	3,	2, index);	
-	quad(2,	3,	7,	6, index);	
-	quad(3,	0,	4,	7, index);	
-	quad(6,	5,	1,	2, index);	
-	quad(4,	5,	6,	7, index);	
-	quad(5,	4,	0,	1, index);
+	createFace(1,	0,	3,	2, index);	
+	createFace(2,	3,	7,	6, index);	
+	createFace(3,	0,	4,	7, index);	
+	createFace(6,	5,	1,	2, index);	
+	createFace(4,	5,	6,	7, index);	
+	createFace(5,	4,	0,	1, index);
+}
+
+
+float scale(float val, int begin, int end)
+{
+	return val * (end - begin) + begin;
+}
+
+
+void colorCube()
+{
+	for (int j = 0; j < NumVertices; j++)
+	{
+		float val = (points[j].y + 0.5);
+		
+		if (val > 0.5)
+		{
+			//colors[j] = color4(238 / 255.0,	139 / 255.0, 34 / 255.0);
+			colors[j] = Point(
+				scale(val, 160, 34) / 255,
+				scale(val, 82, 139) / 255,
+				scale(val, 45, 34) / 255
+				);
+		}
+		else
+			colors[j] = Point(val,	val, val);
+	}
 }
 
 
 
 void init()
 {
-	colorcube();
+	generateCube();
+	colorCube();
 
 	GLuint program = InitShader("vertex.glsl", "fragment.glsl");
 	glUseProgram(program);
@@ -197,130 +223,3 @@ int main(int argc, char **argv)
 	glutMainLoop();
 	return 0;
 }
-
-
-
-/*
-#include <GL/glut.h>
-
-#include <iostream> //Using the standard output for fprintf
-#include <functional>
-#include <chrono>
-#include <thread>
-
-#include "Shader.hpp"
-#include "Program.hpp"
-#include "Sierpinski.cpp"
-
-GLint attribute;
-std::shared_ptr<cs5400::Program> program;
-
-/* Assembles the vertex data and shoves the vertices to the vertex shader 
-void setupVertexData()
-{
-	glEnableVertexAttribArray(attribute);
-	auto verticesData = getVertices();
-
-	/* Describe our vertices array to OpenGL (it can't guess its format automatically) 
-	glVertexAttribPointer(
-		attribute,					// attribute
-		verticesData.first,			// number of elements per vertex, here (x,y)
-		GL_FLOAT,					// the type of each element
-		GL_FALSE,					// take our values as-is
-		0,							// no extra data between each position
-		verticesData.second.data()	// pointer to the C array
-	);
- 
-	/* Push all the vertices to the vertex shader 
-	glDrawArrays(GL_LINES, 0, verticesData.second.size() / verticesData.first);
-	glDisableVertexAttribArray(attribute);
-}
-
-
-
-/* Clears the background and prepares the screen for a new drawing 
-void resetDisplay()
-{
-	glClearColor(1.0, 1.0, 1.0, 1.0); //Clear the background as white
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glUseProgram(program->getHandle()); //Tell OpenGL which program to use
-}
-
-
-void onIdle()
-{
-	std::chrono::milliseconds duration(50); //20 fps
-	std::this_thread::sleep_for(duration); //forget time.h or windows.h, this is the real way to sleep!
-
-	std::cout << "onIdle..." << std::endl;
-}
-
-
-/* Called when the object needs to be redrawn, such as during a resize 
-void onDisplay()
-{
-	resetDisplay();
-	setupVertexData();
-	glutSwapBuffers(); //display the result
-}
-
-
-
-/* Load vertex and fragment shaders, and sets the display function 
-bool initializeResources()
-{
-	try
-	{
-		program = cs5400::make_program
-		(
-			cs5400::make_vertexShader("vertex.glsl"),
-			cs5400::make_fragmentShader("fragment.glsl")   
-		);
-
-		glutDisplayFunc(onDisplay);
-		glutIdleFunc(onIdle);
-		return true;
-	}
-	catch(std::exception& e)
-	{
-		std::cerr << e.what();
-		return false;
-	}
-}
-
-
-
-/* Initializes glew 
-bool initializeWrangler()
-{
-	GLenum glew_status = glewInit();
-	if (glew_status != GLEW_OK)
-	{
-		fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
-		return false;
-	}
-
-	return true;
-}
-
-
-
-
-
-
-
-/* Entry point for the program. Initializes the window and launches display 
-int main(int argc, char* argv[])
-{
-	glutInit(&argc, argv);
-	initializeGlutWindow(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT), "OpenGL Application by Jesse Victors");
-
-	//try to initialize extension wrangler and the shaders
-	if (!initializeWrangler() || !initializeResources())
-		return EXIT_FAILURE;
-
-	glutMainLoop();
-	
-	return EXIT_SUCCESS;
-}*/
