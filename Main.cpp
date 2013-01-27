@@ -10,7 +10,7 @@
 
 const int ROTATION_SPEED = 1;
 const float ZOOM = 0.75f;
-GLfloat rotation[3] = {45, 0, 45};
+GLfloat rotation[3] = {114, 0, 16}; //good initial view
 
 GLuint theta;
 

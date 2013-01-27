@@ -9,9 +9,11 @@
 #include "Triangle.struct"
 
 const std::vector<Point> BASE = {{-1, 1, 0}, {-1, -1, 0}, {1, -1, 0}, {1, 1, 0}};
-const float RANDOMNESS_SCALE = 0.1f; //0.075f;
-const int RESOLUTION = 4; //8 is a good max
-const int NUM_VERTICES = 4096; //= 4 ^ (RESOLUTION + 1)
+const float MOUNTAIN_HEIGHT = 1.0;
+const float SNOW_LEVEL = 0.6;
+const float RANDOMNESS_SCALE = 0.075f;
+const int RESOLUTION = 7; //8 is a good max
+const int NUM_VERTICES = 262144; //= 4 ^ (RESOLUTION + 1)
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
 std::uniform_real_distribution<float> randomFloat(-1, 1);
@@ -22,7 +24,7 @@ Point randVector()
 {
 	return { //return random coordinates, each in the range of (-1, 1)
 		randomFloat(mersenneTwister),
-		randomFloat(mersenneTwister),
+		0,//randomFloat(mersenneTwister),
 		randomFloat(mersenneTwister)
 	};
 }
@@ -52,8 +54,8 @@ Point getMidpoint(const Point& a, const Point& b)
 	auto result = (a + b) / 2; //create midpoint
 	result += randVector() * length(a, b) * RANDOMNESS_SCALE; //add random offset
 
-	//memo.insert(std::make_pair(AB, result)); //memoize
-	//memo.insert(std::make_pair(BA, result));
+	memo.insert(std::make_pair(AB, result)); //memoize
+	memo.insert(std::make_pair(BA, result));
 
 	return result;
 }
@@ -111,16 +113,11 @@ void createFace(std::vector<Triangle>& modelTriangles, const Triangle& baseTrian
 /* Creates all four faces of the 3D mountain and returns the result */
 void createMountain(std::vector<Triangle>& modelTriangles)
 {
-	const Triangle BASE_TRIANGLE = {{0, 0, 0}, {-0.9, -0.9, 0}, {0.9, -0.9, 0}};
-
 	auto oppositeCorners = std::make_pair(BASE[0], BASE[2]);
-	std::cout << oppositeCorners.first.x << ", " << oppositeCorners.first.y << "	" << oppositeCorners.second.x << ", " << oppositeCorners.second.y << std::endl;
 
-	//auto topPeak = getMidpoint(oppositeCorners.first, oppositeCorners.second);
-	std::cout << "Generating..." << std::endl;
-	//createFace(modelTriangles, BASE_TRIANGLE, RESOLUTION);
+	auto topPeak = getMidpoint(oppositeCorners.first, oppositeCorners.second);
+	topPeak.z = MOUNTAIN_HEIGHT;
 
-	Point topPeak = {0, 0, 1};
 	createFace(modelTriangles, {topPeak, BASE[0], BASE[1]}, RESOLUTION);
 	createFace(modelTriangles, {topPeak, BASE[1], BASE[2]}, RESOLUTION);
 	createFace(modelTriangles, {topPeak, BASE[2], BASE[3]}, RESOLUTION);
@@ -162,37 +159,34 @@ std::vector<Point> colorModel(std::vector<Point>& points)
 		[&](const Point& vertex)
 		{
 			float height = vertex.z;
-		
-			if (height > 0.5)
+			
+			if (height > SNOW_LEVEL)
 			{
+				float topScale = (height - SNOW_LEVEL) / (MOUNTAIN_HEIGHT - SNOW_LEVEL);
+				height * 2 - 1;
+
 				colors.push_back({
-					scale(height, 160, 34) / 255,
-					scale(height, 82, 139) / 255,
-					scale(height, 45, 34) / 255
+					scale(topScale, 34, 238) / 255,
+					scale(topScale, 139, 233) / 255,
+					scale(topScale, 34, 233) / 255
 					});
 			}
 			else
 			{
-				float baseColor = height * lowerScale;
-				colors.push_back({baseColor, baseColor, baseColor});
+				float topScale = height / SNOW_LEVEL;
+
+				//float baseColor = height * lowerScale;
+				//colors.push_back({baseColor, baseColor, baseColor});
+
+				colors.push_back({
+					scale(topScale, 160, 34) / 255,
+					scale(topScale, 82, 139) / 255,
+					scale(topScale, 45, 34) / 255
+					});
 			}
 		});
 
 	return colors;
-}
-
-
-
-/* Adds the line formed between the two Points to the vector of vertices */
-void appendLine(std::vector<GLfloat>& vertices, const Point& a, const Point& b)
-{
-	vertices.push_back(a.x);
-	vertices.push_back(a.y);
-	vertices.push_back(a.z);
-
-	vertices.push_back(b.x);
-	vertices.push_back(b.y);
-	vertices.push_back(b.z);
 }
 
 

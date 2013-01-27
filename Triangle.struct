@@ -22,8 +22,8 @@ struct Point
 		if (x == other.x)
 		{
 			if (y == other.y)
-				return z < other.z;
-			return y == other.y;
+				return z <= other.z;
+			return y < other.y;
 		}
 		
 		return x < other.x;
