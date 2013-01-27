@@ -15,54 +15,57 @@ GLuint theta;
 point4 points[NumVertices];
 color4 colors[NumVertices];
 
-point4 vertex_positions[8] = 
+
+const point4 vertex_positions[8] = 
 {	
-	point4(	-0.5,	-0.5,	 0.5,	1.0),	
-	point4(	-0.5,	 0.5,	 0.5,	1.0),	
-	point4(	 0.5,	 0.5,	 0.5,	1.0),	
-	point4(	 0.5,	-0.5,	 0.5,	1.0),	
-	point4(	-0.5,	-0.5,	-0.5,	1.0),	
-	point4(	-0.5,	 0.5,	-0.5,	1.0),	
-	point4(	 0.5,	 0.5,	-0.5,	1.0),	
-	point4(	 0.5,	-0.5,	-0.5,	1.0)	
+	point4(	-0.5,	-0.5,	 0.5),	
+	point4(	-0.5,	 0.5,	 0.5),	
+	point4(	 0.5,	 0.5,	 0.5),	
+	point4(	 0.5,	-0.5,	 0.5),	
+	point4(	-0.5,	-0.5,	-0.5),	
+	point4(	-0.5,	 0.5,	-0.5),	
+	point4(	 0.5,	 0.5,	-0.5),	
+	point4(	 0.5,	-0.5,	-0.5)	
 };
 
-color4 vertex_colors[8] = 
+
+const color4 vertex_colors[8] = 
 {	
-	color4(0.0,		0.0,	0.0,	1.0),	//black	
-	color4(1.0,		0.0,	0.0,	1.0),	//red	
-	color4(1.0,		1.0,	0.0,	1.0),	//yellow	
-	color4(0.0,		1.0,	0.0,	1.0),	//green	
-	color4(0.0,		0.0,	1.0,	1.0),	//blue	
-	color4(1.0,		0.0,	1.0,	1.0),	//magenta	
-	color4(1.0,		1.0,	1.0,	1.0),	//white	
-	color4(0.0,		1.0,	1.0,	1.0)	//cyan	
+	color4(0.0,		0.0,	0.0),	//black	
+	color4(1.0,		0.0,	0.0),	//red	
+	color4(1.0,		1.0,	0.0),	//yellow	
+	color4(0.0,		1.0,	0.0),	//green	
+	color4(0.0,		0.0,	1.0),	//blue	
+	color4(1.0,		0.0,	1.0),	//magenta	
+	color4(1.0,		1.0,	1.0),	//white	
+	color4(0.0,		1.0,	1.0)	//cyan	
 };
 
 
 //generates two triangles for each face and assigns colors to the vertices
-int Index = 0;  // global variable indexing into VBO arrays 
-void quad(int a, int b, int c, int d)
+//int Index = 0;  // global variable indexing into VBO arrays 
+void quad(int a, int b, int c, int d, int& index)
 {
-	colors[Index] = vertex_colors[a]; points[Index] = vertex_positions[a]; Index++; 
-	colors[Index] = vertex_colors[b]; points[Index] = vertex_positions[b]; Index++; 
-	colors[Index] = vertex_colors[c]; points[Index] = vertex_positions[c]; Index++; 
+	colors[index] = vertex_colors[a]; points[index] = vertex_positions[a]; index++; 
+	colors[index] = vertex_colors[b]; points[index] = vertex_positions[b]; index++; 
+	colors[index] = vertex_colors[c]; points[index] = vertex_positions[c]; index++; 
 	
-	colors[Index] = vertex_colors[a]; points[Index] = vertex_positions[a]; Index++; 
-	colors[Index] = vertex_colors[c]; points[Index] = vertex_positions[c]; Index++; 
-	colors[Index] = vertex_colors[d]; points[Index] = vertex_positions[d]; Index++; 
+	colors[index] = vertex_colors[a]; points[index] = vertex_positions[a]; index++; 
+	colors[index] = vertex_colors[c]; points[index] = vertex_positions[c]; index++; 
+	colors[index] = vertex_colors[d]; points[index] = vertex_positions[d]; index++; 
 }
 
 
 //generates 12 triangles: 36 vertices and 36 colors
 void colorcube()
 {
-	quad(1,	0,	3,	2);	
-	quad(2,	3,	7,	6);	
-	quad(3,	0,	4,	7);	
-	quad(6,	5,	1,	2);	
-	quad(4,	5,	6,	7);	
-	quad(5,	4,	0,	1);	
+	int index = 0;
+	quad(1,	0,	3,	2, index);	
+	quad(2,	3,	7,	6, index);	
+	quad(3,	0,	4,	7, index);	
+	quad(6,	5,	1,	2, index);	
+	quad(4,	5,	6,	7, index);	
+	quad(5,	4,	0,	1, index);
 }
 
 
@@ -99,7 +102,6 @@ void init()
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
-
 
 
 
