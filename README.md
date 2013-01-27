@@ -7,3 +7,5 @@ In Linux, simply type "make" and the program should compile, execute, and clean 
 Use A, D, W, S, Q, and E to rotate the mountain.
 
 The mountain is different every time, but here's an example of what it looks like: http://www.jessevictors.com/files/permalink/Sierpinski_Mountain.png
+
+I'm naming this mountain "Caradhras" :)
