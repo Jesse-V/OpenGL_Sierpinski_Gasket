@@ -6,12 +6,17 @@
 typedef Angel::vec4 color4;
 typedef Angel::vec4 point4;
 
+const int SPEED = 1;
 const int NumVertices = 36;
+GLfloat rotation[3] = {45.0, -45.0, 0.0};
+
+GLuint theta;
 
 point4 points[NumVertices];
 color4 colors[NumVertices];
 
-point4 vertex_positions[8] = {	
+point4 vertex_positions[8] = 
+{	
 	point4(	-0.5,	-0.5,	 0.5,	1.0),	
 	point4(	-0.5,	 0.5,	 0.5,	1.0),	
 	point4(	 0.5,	 0.5,	 0.5,	1.0),	
@@ -22,7 +27,8 @@ point4 vertex_positions[8] = {
 	point4(	 0.5,	-0.5,	-0.5,	1.0)	
 };
 
-color4 vertex_colors[8] = {	
+color4 vertex_colors[8] = 
+{	
 	color4(0.0,		0.0,	0.0,	1.0),	//black	
 	color4(1.0,		0.0,	0.0,	1.0),	//red	
 	color4(1.0,		1.0,	0.0,	1.0),	//yellow	
@@ -33,31 +39,22 @@ color4 vertex_colors[8] = {
 	color4(0.0,		1.0,	1.0,	1.0)	//cyan	
 };
 
-enum
-{
-	Xaxis = 0, Yaxis = 1, Zaxis = 2, NumAxes = 3
-};
 
-
-int Axis = Xaxis;
-GLfloat Theta[NumAxes] = {0.0, 0.0, 0.0};
-
-GLuint theta;
-
-
+//generates two triangles for each face and assigns colors to the vertices
 int Index = 0;  // global variable indexing into VBO arrays 
 void quad(int a, int b, int c, int d)
 {
 	colors[Index] = vertex_colors[a]; points[Index] = vertex_positions[a]; Index++; 
 	colors[Index] = vertex_colors[b]; points[Index] = vertex_positions[b]; Index++; 
 	colors[Index] = vertex_colors[c]; points[Index] = vertex_positions[c]; Index++; 
+	
 	colors[Index] = vertex_colors[a]; points[Index] = vertex_positions[a]; Index++; 
 	colors[Index] = vertex_colors[c]; points[Index] = vertex_positions[c]; Index++; 
 	colors[Index] = vertex_colors[d]; points[Index] = vertex_positions[d]; Index++; 
 }
 
 
-
+//generates 12 triangles: 36 vertices and 36 colors
 void colorcube()
 {
 	quad(1,	0,	3,	2);	
@@ -110,7 +107,7 @@ void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glUniform3fv(theta, 1, Theta);
+	glUniform3fv(theta, 1, rotation); //apply view angle
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 	
 	glutSwapBuffers();
@@ -118,35 +115,38 @@ void render()
 
 
 
-void mouseInput(int button, int state, int x, int y)
+void keyboardInput(unsigned char key, int x, int y)
 {
-	if (state == GLUT_DOWN)
+	switch (key)
 	{
-		switch (button)
-		{
-			case GLUT_LEFT_BUTTON:
-				Axis = Xaxis;
-				break;
+		case 'w':
+			rotation[0] += SPEED; //add to X axis
+			break;
 
-			case GLUT_MIDDLE_BUTTON:
-				Axis = Yaxis;
-				break;
+		case 's':
+			rotation[0] -= SPEED; //subtract from X axis
+			break;
 
-			case GLUT_RIGHT_BUTTON:
-				Axis = Zaxis;
-				break;
-		}
+		case 'd':
+			rotation[1] += SPEED; //add to Y axis
+			break;
+
+		case 'a':
+			rotation[1] -= SPEED; //subtract from Y axis
+			break;
+
+		case 'e':
+			rotation[2] += SPEED; //add to Z axis
+			break;
+
+		case 'q':
+			rotation[2] -= SPEED; //subtract from Z axis
+			break;
 	}
-}
 
-
-
-void rotate()
-{
-	Theta[Axis] += 1;
-
-	if (Theta[Axis] > 360.0)
-		Theta[Axis] -= 360.0;
+	rotation[0] = (rotation[0] < 360.0) ? rotation[0] : rotation[0] - 360;
+	rotation[1] = (rotation[1] < 360.0) ? rotation[1] : rotation[0] - 360;
+	rotation[2] = (rotation[2] < 360.0) ? rotation[2] : rotation[0] - 360;
 }
 
 
@@ -161,7 +161,6 @@ void sleep(int milliseconds)
 
 void onIdle()
 {
-	rotate();
 	sleep(50); //20 fps
 	glutPostRedisplay();
 }
@@ -190,7 +189,7 @@ int main(int argc, char **argv)
 	init();
 
 	glutDisplayFunc(render);
-	glutMouseFunc(mouseInput);
+	glutKeyboardFunc(keyboardInput);
 	glutIdleFunc(onIdle);
 
 	glutMainLoop();
