@@ -2,12 +2,13 @@
 #include <thread>
 #include <cmath>
 #include <vector>
+#include <assert.h>
 
 #include "Shader.h"
 #include "Triangle.struct"
+#include "Sierpinski.cpp"
 
 const int SPEED = 1;
-const int NUM_VERTICES = 36;
 GLfloat rotation[3] = {45.0, -45.0, 0.0};
 
 GLuint theta;
@@ -25,67 +26,51 @@ const Point vertex_positions[8] =
 };
 
 
+
 //generates two triangles for each face
-void createFace(Point* points, int a, int b, int c, int d, int& index)
+void createFace(std::vector<Point>& points, int a, int b, int c, int d)
 {
-	points[index++] = vertex_positions[a]; 
-	points[index++] = vertex_positions[b];
-	points[index++] = vertex_positions[c]; 
+	points.push_back(vertex_positions[a]);
+	points.push_back(vertex_positions[b]);
+	points.push_back(vertex_positions[c]);
 	
-	points[index++] = vertex_positions[a]; 
-	points[index++] = vertex_positions[c];
-	points[index++] = vertex_positions[d];
+	points.push_back(vertex_positions[a]);
+	points.push_back(vertex_positions[c]);
+	points.push_back(vertex_positions[d]);
 }
+
 
 
 //generates 12 triangles: 36 vertices
-void generateCube(Point* points)
+std::vector<Point> generateCube()
 {
-	int index = 0;
-	createFace(points, 1,	0,	3,	2, index);	
-	createFace(points, 2,	3,	7,	6, index);	
-	createFace(points, 3,	0,	4,	7, index);	
-	createFace(points, 6,	5,	1,	2, index);	
-	createFace(points, 4,	5,	6,	7, index);	
-	createFace(points, 5,	4,	0,	1, index);
-}
+	std::vector<Point> vertices;
 
+	createFace(vertices, 1,	0,	3,	2);	
+	createFace(vertices, 2,	3,	7,	6);	
+	createFace(vertices, 3,	0,	4,	7);	
+	createFace(vertices, 6,	5,	1,	2);	
+	createFace(vertices, 4,	5,	6,	7);	
+	createFace(vertices, 5,	4,	0,	1);
 
-float scale(float val, int begin, int end)
-{
-	return val * (end - begin) + begin;
-}
-
-
-void colorCube(Point* points, Point* colors)
-{
-	for (int j = 0; j < NUM_VERTICES; j++)
-	{
-		float val = points[j].y + 0.5;
-		
-		if (val > 0.5)
-		{
-			//colors[j] = color4(238 / 255.0,	139 / 255.0, 34 / 255.0);
-			colors[j] = {
-				scale(val, 160, 34) / 255,
-				scale(val, 82, 139) / 255,
-				scale(val, 45, 34) / 255
-				};
-		}
-		else
-			colors[j] = {val, val, val};
-	}
+	return vertices;
 }
 
 
 
 void init()
 {
-	Point points[NUM_VERTICES];
-	generateCube(points);
+	auto vertices = getVertices();
+	auto colors = colorModel(vertices);
+	assert(vertices.size() == colors.size()); //just to double-check
 
-	Point colors[NUM_VERTICES];
-	colorCube(points, colors);
+	Point pointsArray[NUM_VERTICES];
+	Point colorsArray[NUM_VERTICES];
+	for (int j = 0; j < NUM_VERTICES; j++)
+	{
+		pointsArray[j] = vertices[j];
+		colorsArray[j] = colors[j];
+	}
 
 	GLuint program = InitShader("vertex.glsl", "fragment.glsl");
 	glUseProgram(program);
@@ -97,10 +82,10 @@ void init()
 	GLuint buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points) + sizeof(colors), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pointsArray) + sizeof(colorsArray), NULL, GL_STATIC_DRAW);
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points), points);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(points), sizeof(colors), colors);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(pointsArray), pointsArray);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(pointsArray), sizeof(colorsArray), colorsArray);
 
 	GLuint vPosition = glGetAttribLocation(program, "vPosition");
 	glEnableVertexAttribArray(vPosition);
@@ -108,7 +93,7 @@ void init()
 
 	GLuint vColor = glGetAttribLocation(program, "vColor");
 	glEnableVertexAttribArray(vColor);
-	glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(points)));
+	glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(pointsArray)));
 
 	theta = glGetUniformLocation(program, "theta");
 

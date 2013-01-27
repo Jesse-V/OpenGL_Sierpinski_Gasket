@@ -8,10 +8,10 @@
 
 #include "Triangle.struct"
 
-const int DIMENSIONS = 3;
 const std::vector<Point> BASE = {{-0.9, 0.9, 0}, {-0.9, -0.9, 0}, {0.9, -0.9, 0}, {0.9, 0.9, 0}};
 const float RANDOMNESS_SCALE = 0.0f; //0.075f;
-const int RESOLUTION = 5; //8 is a good max
+const int RESOLUTION = 3; //8 is a good max
+const int NUM_VERTICES = 36; //= 4 ^ (RESOLUTION + 1)
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
 std::uniform_real_distribution<float> randomFloat(-1, 1);
@@ -21,6 +21,7 @@ std::uniform_real_distribution<float> randomFloat(-1, 1);
 Point randVector()
 {
 	return { //return random coordinates, each in the range of (-1, 1)
+		randomFloat(mersenneTwister),
 		randomFloat(mersenneTwister),
 		randomFloat(mersenneTwister)
 	};
@@ -143,32 +144,34 @@ std::vector<Triangle> getModel()
 }
 
 
-
 float scale(float val, int begin, int end)
 {
 	return val * (end - begin) + begin;
 }
 
 
-
-void colorModel()
+std::vector<Point> colorModel(std::vector<Point>& points)
 {
-	for (int j = 0; j < NumVertices; j++)
-	{
-		float val = (points[j].y + 0.5);
-		
-		if (val > 0.5)
+	std::vector<Point> colors;
+
+	for_each (points.begin(), points.end(), 
+		[&](const Point& vertex)
 		{
-			//colors[j] = color4(238 / 255.0,	139 / 255.0, 34 / 255.0);
-			colors[j] = Point(
-				scale(val, 160, 34) / 255,
-				scale(val, 82, 139) / 255,
-				scale(val, 45, 34) / 255
-				);
-		}
-		else
-			colors[j] = Point(val,	val, val);
-	}
+			float val = vertex.y + 0.5;
+		
+			if (val > 0.5)
+			{
+				colors.push_back({
+					scale(val, 160, 34) / 255,
+					scale(val, 82, 139) / 255,
+					scale(val, 45, 34) / 255
+					});
+			}
+			else
+				colors.push_back({val, val, val});
+		});
+
+	return colors;
 }
 
 
@@ -188,21 +191,25 @@ void appendLine(std::vector<GLfloat>& vertices, const Point& a, const Point& b)
 
 
 /* Returns the vertices that describe the on-screen shapes */
-std::pair<int, std::vector<GLfloat>> getVertices()
+std::vector<Point> getVertices()
 {
-	auto gasket = getModel();
-	std::cout << "Triangle count: " << gasket.size() << std::endl;
+	auto model = getModel();
+	std::cout << "Triangle count: " << model.size() << std::endl;
 
-	std::vector<GLfloat> vertices;
-	for_each (gasket.begin(), gasket.end(), //iterate through all the gasket's triangles
+	std::vector<Point> vertices;
+	for_each (model.begin(), model.end(), //iterate through all the gasket's triangles
 		[&](const Triangle& triangle)
 		{
-			appendLine(vertices, triangle.A, triangle.B); //express each triangle as three lines
-			appendLine(vertices, triangle.B, triangle.C);
-			appendLine(vertices, triangle.C, triangle.A);
+			//appendLine(vertices, triangle.A, triangle.B); //express each triangle as three lines
+			//appendLine(vertices, triangle.B, triangle.C);
+			//appendLine(vertices, triangle.C, triangle.A);
+			vertices.push_back(triangle.A);
+			vertices.push_back(triangle.B);
+			vertices.push_back(triangle.C);
+
 		});
 	
 	std::cout << "Coord count: " << vertices.size() << std::endl;
 
-	return std::make_pair(DIMENSIONS, vertices);
+	return vertices;
 }
