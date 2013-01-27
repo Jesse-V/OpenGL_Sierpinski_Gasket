@@ -1,19 +1,16 @@
 #include <chrono>
 #include <thread>
 #include <cmath>
+#include <vector>
 
 #include "Shader.h"
 #include "Triangle.struct"
 
 const int SPEED = 1;
-const int NumVertices = 36;
+const int NUM_VERTICES = 36;
 GLfloat rotation[3] = {45.0, -45.0, 0.0};
 
 GLuint theta;
-
-Point points[NumVertices];
-Point colors[NumVertices];
-
 
 const Point vertex_positions[8] = 
 {	
@@ -29,7 +26,7 @@ const Point vertex_positions[8] =
 
 
 //generates two triangles for each face
-void createFace(int a, int b, int c, int d, int& index)
+void createFace(Point* points, int a, int b, int c, int d, int& index)
 {
 	points[index++] = vertex_positions[a]; 
 	points[index++] = vertex_positions[b];
@@ -42,15 +39,15 @@ void createFace(int a, int b, int c, int d, int& index)
 
 
 //generates 12 triangles: 36 vertices
-void generateCube()
+void generateCube(Point* points)
 {
 	int index = 0;
-	createFace(1,	0,	3,	2, index);	
-	createFace(2,	3,	7,	6, index);	
-	createFace(3,	0,	4,	7, index);	
-	createFace(6,	5,	1,	2, index);	
-	createFace(4,	5,	6,	7, index);	
-	createFace(5,	4,	0,	1, index);
+	createFace(points, 1,	0,	3,	2, index);	
+	createFace(points, 2,	3,	7,	6, index);	
+	createFace(points, 3,	0,	4,	7, index);	
+	createFace(points, 6,	5,	1,	2, index);	
+	createFace(points, 4,	5,	6,	7, index);	
+	createFace(points, 5,	4,	0,	1, index);
 }
 
 
@@ -60,9 +57,9 @@ float scale(float val, int begin, int end)
 }
 
 
-void colorCube()
+void colorCube(Point* points, Point* colors)
 {
-	for (int j = 0; j < NumVertices; j++)
+	for (int j = 0; j < NUM_VERTICES; j++)
 	{
 		float val = points[j].y + 0.5;
 		
@@ -76,7 +73,7 @@ void colorCube()
 				};
 		}
 		else
-			colors[j] = {val,	val, val};
+			colors[j] = {val, val, val};
 	}
 }
 
@@ -84,8 +81,11 @@ void colorCube()
 
 void init()
 {
-	generateCube();
-	colorCube();
+	Point points[NUM_VERTICES];
+	generateCube(points);
+
+	Point colors[NUM_VERTICES];
+	colorCube(points, colors);
 
 	GLuint program = InitShader("vertex.glsl", "fragment.glsl");
 	glUseProgram(program);
@@ -123,7 +123,7 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glUniform3fv(theta, 1, rotation); //apply view angle
-	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
+	glDrawArrays(GL_TRIANGLES, 0, NUM_VERTICES);
 	
 	glutSwapBuffers();
 }
