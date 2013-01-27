@@ -8,10 +8,10 @@
 
 #include "Triangle.struct"
 
-const std::vector<Point> BASE = {{-0.9, 0.9, 0}, {-0.9, -0.9, 0}, {0.9, -0.9, 0}, {0.9, 0.9, 0}};
-const float RANDOMNESS_SCALE = 0.0f; //0.075f;
-const int RESOLUTION = 3; //8 is a good max
-const int NUM_VERTICES = 36; //= 4 ^ (RESOLUTION + 1)
+const std::vector<Point> BASE = {{-1, 1, 0}, {-1, -1, 0}, {1, -1, 0}, {1, 1, 0}};
+const float RANDOMNESS_SCALE = 0.1f; //0.075f;
+const int RESOLUTION = 4; //8 is a good max
+const int NUM_VERTICES = 4096; //= 4 ^ (RESOLUTION + 1)
 
 std::mt19937 mersenneTwister; //Mersenne Twister PRNG. WAY better randomness!
 std::uniform_real_distribution<float> randomFloat(-1, 1);
@@ -50,7 +50,7 @@ Point getMidpoint(const Point& a, const Point& b)
 		return foundResult->second; //if found in cache, return pre-computed midpoint
 	
 	auto result = (a + b) / 2; //create midpoint
-	//result += randVector() * length(a, b) * RANDOMNESS_SCALE; //add random offset
+	result += randVector() * length(a, b) * RANDOMNESS_SCALE; //add random offset
 
 	//memo.insert(std::make_pair(AB, result)); //memoize
 	//memo.insert(std::make_pair(BA, result));
@@ -129,7 +129,8 @@ void createMountain(std::vector<Triangle>& modelTriangles)
 
 
 
-/* Creates the mountain model using the Sierpinksi Gasket. Uses memoizing to create the model only once. */
+/* Creates the mountain model using the Sierpinksi Gasket.
+	Uses memoizing to create the model only once. */
 std::vector<Triangle> getModel()
 {
 	static std::vector<Triangle> modelTriangles;
@@ -144,31 +145,37 @@ std::vector<Triangle> getModel()
 }
 
 
+
 float scale(float val, int begin, int end)
 {
 	return val * (end - begin) + begin;
 }
 
 
+
 std::vector<Point> colorModel(std::vector<Point>& points)
 {
 	std::vector<Point> colors;
+	const float lowerScale = 1.2f;
 
 	for_each (points.begin(), points.end(), 
 		[&](const Point& vertex)
 		{
-			float val = vertex.y + 0.5;
+			float height = vertex.z;
 		
-			if (val > 0.5)
+			if (height > 0.5)
 			{
 				colors.push_back({
-					scale(val, 160, 34) / 255,
-					scale(val, 82, 139) / 255,
-					scale(val, 45, 34) / 255
+					scale(height, 160, 34) / 255,
+					scale(height, 82, 139) / 255,
+					scale(height, 45, 34) / 255
 					});
 			}
 			else
-				colors.push_back({val, val, val});
+			{
+				float baseColor = height * lowerScale;
+				colors.push_back({baseColor, baseColor, baseColor});
+			}
 		});
 
 	return colors;
@@ -200,9 +207,6 @@ std::vector<Point> getVertices()
 	for_each (model.begin(), model.end(), //iterate through all the gasket's triangles
 		[&](const Triangle& triangle)
 		{
-			//appendLine(vertices, triangle.A, triangle.B); //express each triangle as three lines
-			//appendLine(vertices, triangle.B, triangle.C);
-			//appendLine(vertices, triangle.C, triangle.A);
 			vertices.push_back(triangle.A);
 			vertices.push_back(triangle.B);
 			vertices.push_back(triangle.C);

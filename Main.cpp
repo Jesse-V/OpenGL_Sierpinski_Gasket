@@ -8,54 +8,11 @@
 #include "Triangle.struct"
 #include "Sierpinski.cpp"
 
-const int SPEED = 1;
-GLfloat rotation[3] = {45.0, -45.0, 0.0};
+const int ROTATION_SPEED = 1;
+const float ZOOM = 0.75f;
+GLfloat rotation[3] = {45, 0, 45};
 
 GLuint theta;
-
-const Point vertex_positions[8] = 
-{	
-	{   -0.5,	-0.5,	 0.5},
-	{	-0.5,	 0.5,	 0.5},
-	{	 0.5,	 0.5,	 0.5},
-	{	 0.5,	-0.5,	 0.5},
-	{	-0.5,	-0.5,	-0.5},
-	{	-0.5,	 0.5,	-0.5},
-	{	 0.5,	 0.5,	-0.5},
-	{	 0.5,	-0.5,	-0.5}
-};
-
-
-
-//generates two triangles for each face
-void createFace(std::vector<Point>& points, int a, int b, int c, int d)
-{
-	points.push_back(vertex_positions[a]);
-	points.push_back(vertex_positions[b]);
-	points.push_back(vertex_positions[c]);
-	
-	points.push_back(vertex_positions[a]);
-	points.push_back(vertex_positions[c]);
-	points.push_back(vertex_positions[d]);
-}
-
-
-
-//generates 12 triangles: 36 vertices
-std::vector<Point> generateCube()
-{
-	std::vector<Point> vertices;
-
-	createFace(vertices, 1,	0,	3,	2);	
-	createFace(vertices, 2,	3,	7,	6);	
-	createFace(vertices, 3,	0,	4,	7);	
-	createFace(vertices, 6,	5,	1,	2);	
-	createFace(vertices, 4,	5,	6,	7);	
-	createFace(vertices, 5,	4,	0,	1);
-
-	return vertices;
-}
-
 
 
 void init()
@@ -68,8 +25,8 @@ void init()
 	Point colorsArray[NUM_VERTICES];
 	for (int j = 0; j < NUM_VERTICES; j++)
 	{
-		pointsArray[j] = vertices[j];
-		colorsArray[j] = colors[j];
+		pointsArray[j] = vertices[j] * ZOOM;
+		colorsArray[j] = colors[j] * ZOOM;
 	}
 
 	GLuint program = InitShader("vertex.glsl", "fragment.glsl");
@@ -120,27 +77,27 @@ void keyboardInput(unsigned char key, int x, int y)
 	switch (key)
 	{
 		case 'w':
-			rotation[0] += SPEED; //add to X axis
+			rotation[0] += ROTATION_SPEED; //add to X axis
 			break;
 
 		case 's':
-			rotation[0] -= SPEED; //subtract from X axis
+			rotation[0] -= ROTATION_SPEED; //subtract from X axis
 			break;
 
 		case 'd':
-			rotation[1] += SPEED; //add to Y axis
+			rotation[1] += ROTATION_SPEED; //add to Y axis
 			break;
 
 		case 'a':
-			rotation[1] -= SPEED; //subtract from Y axis
+			rotation[1] -= ROTATION_SPEED; //subtract from Y axis
 			break;
 
 		case 'e':
-			rotation[2] += SPEED; //add to Z axis
+			rotation[2] += ROTATION_SPEED; //add to Z axis
 			break;
 
 		case 'q':
-			rotation[2] -= SPEED; //subtract from Z axis
+			rotation[2] -= ROTATION_SPEED; //subtract from Z axis
 			break;
 	}
 
