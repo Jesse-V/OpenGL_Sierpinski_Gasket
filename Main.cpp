@@ -17,27 +17,14 @@ Point colors[NumVertices];
 
 const Point vertex_positions[8] = 
 {	
-	Point(	-0.5,	-0.5,	 0.5),	
-	Point(	-0.5,	 0.5,	 0.5),	
-	Point(	 0.5,	 0.5,	 0.5),	
-	Point(	 0.5,	-0.5,	 0.5),	
-	Point(	-0.5,	-0.5,	-0.5),	
-	Point(	-0.5,	 0.5,	-0.5),	
-	Point(	 0.5,	 0.5,	-0.5),	
-	Point(	 0.5,	-0.5,	-0.5)	
-};
-
-
-const Point vertex_colors[8] = 
-{	
-	Point(0.0,		0.0,	0.0),	//black	
-	Point(1.0,		0.0,	0.0),	//red	
-	Point(1.0,		1.0,	0.0),	//yellow	
-	Point(0.0,		1.0,	0.0),	//green	
-	Point(0.0,		0.0,	1.0),	//blue	
-	Point(1.0,		0.0,	1.0),	//magenta	
-	Point(1.0,		1.0,	1.0),	//white	
-	Point(0.0,		1.0,	1.0)	//cyan	
+	{   -0.5,	-0.5,	 0.5},
+	{	-0.5,	 0.5,	 0.5},
+	{	 0.5,	 0.5,	 0.5},
+	{	 0.5,	-0.5,	 0.5},
+	{	-0.5,	-0.5,	-0.5},
+	{	-0.5,	 0.5,	-0.5},
+	{	 0.5,	 0.5,	-0.5},
+	{	 0.5,	-0.5,	-0.5}
 };
 
 
@@ -77,19 +64,19 @@ void colorCube()
 {
 	for (int j = 0; j < NumVertices; j++)
 	{
-		float val = (points[j].y + 0.5);
+		float val = points[j].y + 0.5;
 		
 		if (val > 0.5)
 		{
 			//colors[j] = color4(238 / 255.0,	139 / 255.0, 34 / 255.0);
-			colors[j] = Point(
+			colors[j] = {
 				scale(val, 160, 34) / 255,
 				scale(val, 82, 139) / 255,
 				scale(val, 45, 34) / 255
-				);
+				};
 		}
 		else
-			colors[j] = Point(val,	val, val);
+			colors[j] = {val,	val, val};
 	}
 }
 

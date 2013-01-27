@@ -1,4 +1,7 @@
 
+#ifndef __TRIANGLE_STRUCT__
+#define __TRIANGLE_STRUCT__
+
 #include <GL/glew.h>
 
 /* Defines a two dimensional point */
@@ -71,16 +74,10 @@ struct Point
 };
 
 
-
 /* Defines a triangle, consistng of three Points */
 struct Triangle
 {
 	Point A, B, C;
 };
 
-
-
-struct TriangularPrism
-{
-	Point A, B, C, D; //one for the top, others describe rectangular base
-};
+#endif

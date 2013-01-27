@@ -144,6 +144,35 @@ std::vector<Triangle> getModel()
 
 
 
+float scale(float val, int begin, int end)
+{
+	return val * (end - begin) + begin;
+}
+
+
+
+void colorModel()
+{
+	for (int j = 0; j < NumVertices; j++)
+	{
+		float val = (points[j].y + 0.5);
+		
+		if (val > 0.5)
+		{
+			//colors[j] = color4(238 / 255.0,	139 / 255.0, 34 / 255.0);
+			colors[j] = Point(
+				scale(val, 160, 34) / 255,
+				scale(val, 82, 139) / 255,
+				scale(val, 45, 34) / 255
+				);
+		}
+		else
+			colors[j] = Point(val,	val, val);
+	}
+}
+
+
+
 /* Adds the line formed between the two Points to the vector of vertices */
 void appendLine(std::vector<GLfloat>& vertices, const Point& a, const Point& b)
 {

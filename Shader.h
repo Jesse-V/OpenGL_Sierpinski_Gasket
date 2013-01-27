@@ -1,6 +1,6 @@
 
-#ifndef __ANGEL_H__
-#define __ANGEL_H__
+#ifndef __ANGEL_SHADER__
+#define __ANGEL_SHADER__
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -16,7 +16,6 @@
 
 // Define a helpful macro for handling offsets into buffer objects
 #define BUFFER_OFFSET(offset) ((GLvoid*) (offset))
-
 
 namespace Angel
 {
@@ -34,4 +33,4 @@ namespace Angel
 //  Globally use our namespace in our example programs.
 using namespace Angel;
 
-#endif // __ANGEL_H__
+#endif
