@@ -143,6 +143,7 @@ std::vector<Triangle> getModel()
 
 
 
+/* Scales val, which is the range of (0, 1) to the given range and returns the result */
 float scale(float val, int begin, int end)
 {
 	return val * (end - begin) + begin;
@@ -150,6 +151,8 @@ float scale(float val, int begin, int end)
 
 
 
+/* Given the vertices, it return a list of respective colors for those points.
+	The returned array will be the same length as the list of vertices. */
 std::vector<Point> colorModel(std::vector<Point>& points)
 {
 	std::vector<Point> colors;
@@ -174,9 +177,6 @@ std::vector<Point> colorModel(std::vector<Point>& points)
 			else
 			{
 				float topScale = height / SNOW_LEVEL;
-
-				//float baseColor = height * lowerScale;
-				//colors.push_back({baseColor, baseColor, baseColor});
 
 				colors.push_back({
 					scale(topScale, 160, 34) / 255,

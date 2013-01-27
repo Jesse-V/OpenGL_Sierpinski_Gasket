@@ -15,6 +15,38 @@ GLfloat rotation[3] = {114, 0, 16}; //good initial view
 GLuint theta;
 
 
+/*	Initializes the GPU memory with the given vertices and color information */
+void initializeProgram(Point (&vertices)[NUM_VERTICES], Point (&colors)[NUM_VERTICES])
+{
+	GLuint program = InitShader("vertex.glsl", "fragment.glsl");
+	glUseProgram(program);
+
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLuint buffer; //sets aside GPU memory for the vertices and color information
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices) + sizeof(colors), NULL, GL_STATIC_DRAW);
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); //save vertices
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(colors), colors); //save colors after vertices
+
+	GLuint vPosition = glGetAttribLocation(program, "vPosition");
+	glEnableVertexAttribArray(vPosition);
+	glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
+	GLuint vColor = glGetAttribLocation(program, "vColor");
+	glEnableVertexAttribArray(vColor);
+	glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vertices)));
+
+	theta = glGetUniformLocation(program, "theta");
+}
+
+
+
+/* Fetches the model and puts it into GPU memory */
 void init()
 {
 	auto vertices = getVertices();
@@ -29,30 +61,7 @@ void init()
 		colorsArray[j] = colors[j] * ZOOM;
 	}
 
-	GLuint program = InitShader("vertex.glsl", "fragment.glsl");
-	glUseProgram(program);
-
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	GLuint buffer;
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(pointsArray) + sizeof(colorsArray), NULL, GL_STATIC_DRAW);
-
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(pointsArray), pointsArray);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(pointsArray), sizeof(colorsArray), colorsArray);
-
-	GLuint vPosition = glGetAttribLocation(program, "vPosition");
-	glEnableVertexAttribArray(vPosition);
-	glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-
-	GLuint vColor = glGetAttribLocation(program, "vColor");
-	glEnableVertexAttribArray(vColor);
-	glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(pointsArray)));
-
-	theta = glGetUniformLocation(program, "theta");
+	initializeProgram(pointsArray, colorsArray);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -60,6 +69,7 @@ void init()
 
 
 
+/* Clears the screen, applies view angle, and renders the model */
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -72,6 +82,7 @@ void render()
 
 
 
+/*	Handles keyboard input. Does rotation according to user input */
 void keyboardInput(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -108,6 +119,7 @@ void keyboardInput(unsigned char key, int x, int y)
 
 
 
+/*	Causes the current thread to sleep for the specified number of milliseconds */
 void sleep(int milliseconds)
 {
 	std::chrono::milliseconds duration(milliseconds);
@@ -116,6 +128,8 @@ void sleep(int milliseconds)
 
 
 
+/* 	Called when Glut has nothing else to do.
+	This waits to preserve framerate, and then redisplays the model. */
 void onIdle()
 {
 	sleep(50); //20 fps
@@ -133,7 +147,8 @@ void initializeGlutWindow(int width, int height, const std::string& windowTitle)
 }
 
 
-
+/*	Entry point for the program.
+	Initializes glut, the window, and the shaders, and then begins rendering the model. */
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);

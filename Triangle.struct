@@ -4,7 +4,7 @@
 
 #include <GL/glew.h>
 
-/* Defines a two dimensional point */
+/* Defines a three-dimensional point */
 struct Point
 {
 	float x, y, z, w = 1;
