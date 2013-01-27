@@ -87,6 +87,18 @@ void render()
 
 
 
+/* Ensures that 'value' is in the range of [0, 360) */
+void modRotation(float& value)
+{
+	while (value >= 360.0)
+		value -= 360.0;
+
+	while (value < 0)
+		value += 360.0;
+}
+
+
+
 /*	Handles keyboard input. Does rotation according to user input */
 void keyboardInput(unsigned char key, int x, int y)
 {
@@ -117,9 +129,9 @@ void keyboardInput(unsigned char key, int x, int y)
 			break;
 	}
 
-	rotation[0] = (rotation[0] < 360.0) ? rotation[0] : rotation[0] - 360;
-	rotation[1] = (rotation[1] < 360.0) ? rotation[1] : rotation[0] - 360;
-	rotation[2] = (rotation[2] < 360.0) ? rotation[2] : rotation[0] - 360;
+	modRotation(rotation[0]);
+	modRotation(rotation[1]);
+	modRotation(rotation[2]);
 }
 
 
