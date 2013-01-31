@@ -152,7 +152,7 @@ float scale(float val, int begin, int end)
 
 /* Given the vertices, it return a list of respective colors for those points.
 	The returned array will be the same length as the list of vertices. */
-std::vector<Point> colorModel(std::vector<Point>& points)
+std::vector<Point> colorModel(const std::vector<Point>& points)
 {
 	std::vector<Point> colors;
 	const float lowerScale = 1.2f;
@@ -203,7 +203,6 @@ std::vector<Point> getVertices()
 			vertices.push_back(triangle.A);
 			vertices.push_back(triangle.B);
 			vertices.push_back(triangle.C);
-
 		});
 	
 	std::cout << "Coord count: " << vertices.size() << std::endl;
