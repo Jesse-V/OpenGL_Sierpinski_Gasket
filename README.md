@@ -23,3 +23,7 @@ My submission was peer-reviewed by six of my classmates under the following crit
 
 I received an average of 97% based on those six reviews.<br>
 We were asked to be thorough in our review and look carefully, so I'm very pleased that it did so well under their scrutiny.
+
+License
+-----------------
+GPL v3: http://www.gnu.org/licenses/gpl.html
