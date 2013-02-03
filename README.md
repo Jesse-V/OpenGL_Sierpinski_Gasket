@@ -3,10 +3,10 @@ OpenGL Sierpinski Mountain
 
 A 3D artificial mountain created using a form of the Sierpinski Gasket; written in C++ and rendered using OpenGL.
 
+![Image of my 3D Mountain](http://www.jessevictors.com/images/Sierpinski_Mountain.jpg "The mountain is different every time, but this is an example of what it looks like")
+
 In Linux, simply type "make" and the program should compile, execute, and clean up after itself.
 Use A, D, W, S, Q, and E to rotate the mountain.
-
-The mountain is different every time, but here's an example of what it looks like: http://www.jessevictors.com/files/permalink/Sierpinski_Mountain.png
 
 I'm naming this mountain "Caradhras" :)
 
